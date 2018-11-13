@@ -1,0 +1,44 @@
+version: '2'
+
+services:
+  app:
+    build: ./
+    container_name: test_app
+    command: bash -c "rm -f tmp/pids/server.pid && bin/rails s -b 0.0.0.0"
+    environment:
+      RAILS_ENV: 'development'
+    ports:
+      - '3000:3000'
+    volumes_from:
+      - datastore
+      - bundle
+    links:
+      - db
+    tty: true
+    stdin_open: true
+
+  db:
+    image: postgres:9.6.1
+    container_name: test_db
+    environment:
+      POSTGRES_PASSWORD: 'password'
+    ports:
+      - '5432:5432'
+    volumes_from:
+      - datastore
+
+  datastore:
+    image: busybox:latest
+    container_name: test_datastore
+    command: /bin/sh
+    volumes:
+      - /var/lib/postgresql/data
+      - /datastore
+
+  bundle:
+    image: busybox:latest
+    container_name: test_bundle
+    command: /bin/sh
+    volumes:
+      - /bundle
+
